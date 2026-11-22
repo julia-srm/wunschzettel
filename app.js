@@ -94,43 +94,307 @@
   tick();
   setInterval(tick, 1000);
 
-  // ---------- Floating decorations ----------
-  const COKE_ZERO =
-    '<svg viewBox="0 0 40 70" aria-hidden="true"><rect x="6" y="2" width="28" height="7" rx="3" fill="#cfcfcf"/>' +
-    '<rect x="4" y="6" width="32" height="58" rx="7" fill="#151515"/><rect x="6" y="61" width="28" height="7" rx="3" fill="#bdbdbd"/>' +
-    '<path d="M4 28 Q20 21 36 28 V37 Q20 30 4 37Z" fill="#e4002b"/>' +
-    '<text x="20" y="52" font-family="Arial,sans-serif" font-weight="900" font-size="9" fill="#fff" text-anchor="middle">ZERO</text>' +
-    '<rect x="9" y="10" width="3" height="48" rx="1.5" fill="#fff" opacity=".18"/></svg>';
+  // ---------- Night sky: twinkling stars ----------
+  (function stars() {
+    const sky = $("sky");
+    const count = Math.min(160, Math.floor((innerWidth * innerHeight) / 9000));
+    for (let i = 0; i < count; i++) {
+      const s = Math.random() < 0.85 ? 1 + Math.random() * 1.5 : 2.5 + Math.random();
+      const star = el("span", { className: "star" });
+      star.style.cssText =
+        `width:${s}px;height:${s}px;left:${Math.random() * 100}%;top:${Math.random() * 100}%;` +
+        `--d:${2 + Math.random() * 4}s;--delay:${-Math.random() * 6}s`;
+      sky.append(star);
+    }
+    for (let i = 0; i < 14; i++) {
+      const sp = el("span", { className: "sparkle", textContent: "✦" });
+      sp.style.cssText =
+        `font-size:${8 + Math.random() * 12}px;left:${Math.random() * 100}%;top:${Math.random() * 75}%;` +
+        `--d:${3 + Math.random() * 4}s;--delay:${-Math.random() * 6}s`;
+      sky.append(sp);
+    }
+  })();
 
-  const DECOS = [
-    { e: "☕", top: 8, left: 3, size: 46, r: -10 },
-    { e: "🎀", top: 6, left: 91, size: 44, r: 12 },
-    { e: "🥐", top: 30, left: 94, size: 42, r: 8 },
-    { svg: COKE_ZERO, top: 40, left: 2, size: 34, r: -14 },
-    { e: "🕯️", top: 58, left: 95, size: 40, r: 0 },
-    { e: "📚", top: 70, left: 3, size: 42, r: 6 },
-    { e: "🎨", top: 85, left: 92, size: 42, r: -8 },
-    { e: "💍", top: 90, left: 6, size: 36, r: 10 },
-    { e: "🏺", top: 18, left: 47, size: 30, r: -6 },
-    { e: "🎀", top: 52, left: 5, size: 30, r: -20 },
-    { svg: COKE_ZERO, top: 76, left: 96, size: 28, r: 14 },
-    { e: "☕", top: 96, left: 50, size: 30, r: 10 },
-  ];
-
-  const deco = $("deco");
-  DECOS.forEach((d, i) => {
-    const node = el("span");
-    if (d.svg) node.innerHTML = d.svg;
-    else node.textContent = d.e;
-    node.style.cssText = `top:${d.top}%;left:${d.left}%;font-size:${d.size}px;--r:${d.r}deg;animation-delay:${-i * 0.7}s`;
-    deco.append(node);
-  });
-  for (let i = 0; i < 9; i++) {
-    const s = 12 + Math.random() * 26;
-    const b = el("span", { className: "bubble" });
-    b.style.cssText = `width:${s}px;height:${s}px;left:${Math.random() * 100}%;top:${100 + Math.random() * 10}%;animation-delay:${-Math.random() * 14}s;animation-duration:${12 + Math.random() * 8}s`;
-    deco.append(b);
+  // ---------- Realistic Christmas trees (procedurally drawn) ----------
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0;
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
   }
+
+  function drawTree(wrap, seed) {
+    const canvas = wrap.querySelector("canvas");
+    const box = wrap.getBoundingClientRect();
+    if (!box.width || !box.height) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = (canvas.width = Math.round(box.width * dpr));
+    const H = (canvas.height = Math.round(box.height * dpr));
+    const ctx = canvas.getContext("2d");
+    const rand = mulberry32(seed);
+    const r = (a, b) => a + rand() * (b - a);
+
+    wrap.querySelectorAll(".light, .tree-star-glow").forEach((n) => n.remove());
+
+    const cx = W / 2;
+    const ground = H * 0.93;
+    const bottom = H * 0.84;
+    const treeH = Math.min(bottom * 0.9, (W * 0.95) / 0.62);
+    const top = bottom - treeH;
+    const baseW = treeH * 0.62;
+    const s0 = treeH / 700; // scale factor
+
+    const TIERS = 7;
+    const halfW = (t) => {
+      const f = (t * TIERS) % 1;
+      return (baseW / 2) * (0.06 + 0.94 * t) * (0.74 + 0.26 * Math.pow(f, 0.7));
+    };
+
+    // Trunk
+    const trunkW = baseW * 0.075;
+    const tg = ctx.createLinearGradient(cx - trunkW, 0, cx + trunkW, 0);
+    tg.addColorStop(0, "#2b1709");
+    tg.addColorStop(0.5, "#5a3518");
+    tg.addColorStop(1, "#21110a");
+    ctx.fillStyle = tg;
+    ctx.fillRect(cx - trunkW / 2, bottom - treeH * 0.15, trunkW, ground - bottom + treeH * 0.15);
+
+    // Dark silhouette so no gaps show through
+    ctx.fillStyle = "#06190f";
+    ctx.beginPath();
+    ctx.moveTo(cx, top + treeH * 0.02);
+    for (let i = 0; i <= 60; i++) {
+      const t = i / 60;
+      ctx.lineTo(cx + halfW(t) * 0.82, top + t * treeH);
+    }
+    for (let i = 60; i >= 0; i--) {
+      const t = i / 60;
+      ctx.lineTo(cx - halfW(t) * 0.82, top + t * treeH);
+    }
+    ctx.fill();
+
+    // Needles, grouped into colour buckets per layer
+    const BUCKETS = 14;
+    const bucketColor = (b, alpha = 1) => {
+      const k = b / (BUCKETS - 1);
+      const hue = 150 - k * 22;
+      const sat = 38 + k * 22;
+      const light = 9 + k * 30;
+      return `hsla(${hue}, ${sat}%, ${light}%, ${alpha})`;
+    };
+
+    ctx.lineCap = "round";
+    const LAYERS = 110;
+    for (let i = 0; i <= LAYERS; i++) {
+      const t = i / LAYERS;
+      const y0 = top + t * treeH;
+      const w = halfW(t);
+      const paths = Array.from({ length: BUCKETS }, () => new Path2D());
+      const frost = new Path2D();
+      const twigs = new Path2D();
+      const sprays = 3 + Math.round((w / (baseW / 2)) * 16);
+
+      for (let k = 0; k < sprays; k++) {
+        // Edge branches reach outward, inner ones fill the front of the tree
+        const edge = k < 2;
+        const dir = edge ? (k === 0 ? -1 : 1) : rand() < 0.5 ? -1 : 1;
+        const startX = edge ? cx + dir * w * r(0.2, 0.45) : cx + r(-0.85, 0.85) * w;
+        const reach = edge ? w * r(0.6, 0.8) : w * r(0.18, 0.4) + 8 * s0;
+        const endX = Math.max(cx - w * 1.05, Math.min(cx + w * 1.05, startX + dir * reach));
+        const len = Math.abs(endX - startX);
+        const droop = len * r(0.18, 0.42);
+        const sy = y0 + r(-4, 4) * s0;
+        const ey = sy + droop;
+        const ctrlX = (startX + endX) / 2;
+        const ctrlY = sy - droop * 0.15;
+
+        twigs.moveTo(startX, sy);
+        twigs.quadraticCurveTo(ctrlX, ctrlY, endX, ey);
+
+        const outward = Math.abs(endX - cx) / (w + 1); // 0 = trunk, 1 = edge
+        const needles = Math.max(6, Math.round(len / (2.1 * s0)));
+        for (let n = 0; n < needles; n++) {
+          const u = n / needles;
+          const px = (1 - u) * (1 - u) * startX + 2 * (1 - u) * u * ctrlX + u * u * endX;
+          const py = (1 - u) * (1 - u) * sy + 2 * (1 - u) * u * ctrlY + u * u * ey;
+          const ang = Math.atan2(ey - sy, endX - startX);
+          // light from upper left, lighter at tips and edges, darker deep inside & low
+          let shade = 0.25 + 0.45 * u * outward + 0.25 * rand() - 0.2 * t + (dir < 0 ? 0.08 : -0.04);
+          if (!edge) shade -= 0.12;
+          const b = Math.max(0, Math.min(BUCKETS - 1, Math.round(shade * (BUCKETS - 1))));
+          for (const side of [-1, 1]) {
+            const a = ang + side * r(0.55, 1.05) + 0.25;
+            const nl = r(5, 10) * s0 * (0.7 + 0.5 * (1 - u));
+            paths[b].moveTo(px, py);
+            paths[b].lineTo(px + Math.cos(a) * nl, py + Math.sin(a) * nl);
+          }
+          if (u > 0.4 && rand() < 0.07 * outward) {
+            frost.moveTo(px - 3 * s0, py - 1 * s0);
+            frost.lineTo(px + 3 * s0, py - 2 * s0);
+          }
+        }
+      }
+
+      ctx.strokeStyle = "#1a0f08";
+      ctx.lineWidth = 1.6 * s0 * dpr;
+      ctx.stroke(twigs);
+      ctx.lineWidth = Math.max(1, 1.25 * s0 * dpr);
+      paths.forEach((p, b) => {
+        ctx.strokeStyle = bucketColor(b);
+        ctx.stroke(p);
+      });
+      ctx.strokeStyle = "rgba(235, 245, 255, 0.55)";
+      ctx.lineWidth = Math.max(1, 1.8 * s0 * dpr);
+      ctx.stroke(frost);
+    }
+
+    // Helper: random point inside the cone
+    const pointIn = (tMin, tMax, spread) => {
+      const t = r(tMin, tMax);
+      return { t, x: cx + r(-spread, spread) * halfW(t), y: top + t * treeH };
+    };
+
+    // Gold beaded garlands
+    ctx.fillStyle = "#f3cf6b";
+    for (let g = 1; g <= 5; g++) {
+      const t0 = 0.12 + g * 0.16;
+      const t1 = t0 + 0.1;
+      const steps = 40;
+      for (let i = 0; i <= steps; i++) {
+        const u = i / steps;
+        const t = t0 + (t1 - t0) * u + Math.sin(u * Math.PI) * 0.05;
+        const x = cx + (u * 2 - 1) * halfW(t) * 0.85;
+        const y = top + t * treeH;
+        ctx.beginPath();
+        ctx.arc(x, y, 1.6 * s0 * dpr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Baubles
+    const COLORS = [
+      ["#ff9ec4", "#c2376e"],
+      ["#ffe39a", "#b07d16"],
+      ["#ff7d86", "#9c1527"],
+      ["#f3f6ff", "#8a93ad"],
+      ["#ffc9de", "#d0638f"],
+    ];
+    for (let i = 0; i < 22; i++) {
+      const p = pointIn(0.12, 0.97, 0.82);
+      const rad = r(8, 13) * s0 * (0.7 + p.t * 0.5);
+      const [c1, c2] = COLORS[i % COLORS.length];
+      ctx.strokeStyle = "rgba(240, 220, 160, 0.7)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y - rad * 2);
+      ctx.lineTo(p.x, p.y - rad);
+      ctx.stroke();
+      const g = ctx.createRadialGradient(p.x - rad * 0.35, p.y - rad * 0.4, rad * 0.1, p.x, p.y, rad);
+      g.addColorStop(0, "#fff");
+      g.addColorStop(0.18, c1);
+      g.addColorStop(1, c2);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#c9a54a";
+      ctx.fillRect(p.x - rad * 0.3, p.y - rad * 1.15, rad * 0.6, rad * 0.3);
+    }
+
+    // Star on top
+    const starR = 26 * s0;
+    const sy = top - starR * 0.35;
+    ctx.save();
+    ctx.shadowColor = "rgba(255, 230, 140, 0.9)";
+    ctx.shadowBlur = 25 * s0;
+    const sg = ctx.createRadialGradient(cx - starR * 0.2, sy - starR * 0.3, 1, cx, sy, starR);
+    sg.addColorStop(0, "#fffbe0");
+    sg.addColorStop(0.5, "#f7d264");
+    sg.addColorStop(1, "#c8901e");
+    ctx.fillStyle = sg;
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + (i * Math.PI) / 5;
+      const rr = i % 2 ? starR * 0.42 : starR;
+      ctx.lineTo(cx + Math.cos(a) * rr, sy + Math.sin(a) * rr);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // Snow on the ground (soft elliptical mound)
+    const rx = W * 0.47;
+    const ry = H * 0.075;
+    ctx.save();
+    ctx.translate(cx, ground + ry * 0.55);
+    ctx.scale(1, ry / rx);
+    const snowG = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+    snowG.addColorStop(0, "rgba(255,255,255,0.97)");
+    snowG.addColorStop(0.65, "rgba(232,240,255,0.9)");
+    snowG.addColorStop(1, "rgba(232,240,255,0)");
+    ctx.fillStyle = snowG;
+    ctx.beginPath();
+    ctx.arc(0, 0, rx, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Presents under the tree
+    const PRESENTS = [
+      { dx: -0.32, w: 0.24, h: 0.13, box: ["#ff9ec4", "#d0517f"], rib: "#fff" },
+      { dx: 0.02, w: 0.17, h: 0.09, box: ["#fff2c4", "#d9a93a"], rib: "#c2376e" },
+      { dx: 0.27, w: 0.22, h: 0.16, box: ["#ffffff", "#c9cde0"], rib: "#e27a9f" },
+      { dx: -0.1, w: 0.13, h: 0.07, box: ["#a8324f", "#5e1328"], rib: "#f6d77f" },
+    ];
+    for (const p of PRESENTS) {
+      const pw = baseW * p.w;
+      const ph = baseW * p.h;
+      const x = cx + baseW * p.dx - pw / 2;
+      const y = ground - ph + r(0, 4) * s0;
+      const g = ctx.createLinearGradient(x, y, x + pw, y + ph);
+      g.addColorStop(0, p.box[0]);
+      g.addColorStop(1, p.box[1]);
+      ctx.fillStyle = g;
+      ctx.fillRect(x, y, pw, ph);
+      ctx.fillStyle = "rgba(0,0,0,0.12)";
+      ctx.fillRect(x + pw * 0.7, y, pw * 0.3, ph); // side shading
+      ctx.fillStyle = p.rib;
+      ctx.fillRect(x + pw * 0.44, y, pw * 0.12, ph);
+      ctx.fillRect(x, y + ph * 0.42, pw, ph * 0.14);
+      // bow
+      ctx.beginPath();
+      ctx.ellipse(x + pw * 0.5 - pw * 0.1, y - ph * 0.06, pw * 0.12, ph * 0.12, -0.5, 0, Math.PI * 2);
+      ctx.ellipse(x + pw * 0.5 + pw * 0.1, y - ph * 0.06, pw * 0.12, ph * 0.12, 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Twinkling fairy lights (DOM so they can glow & animate)
+    const toPct = (x, y) => `left:${(x / W) * 100}%;top:${(y / H) * 100}%;`;
+    for (let i = 0; i < 46; i++) {
+      const p = pointIn(0.06, 0.97, 0.9);
+      const warm = rand() < 0.75;
+      const light = el("span", { className: "light" });
+      light.style.cssText =
+        toPct(p.x, p.y) +
+        (warm ? "" : "--c:#ffc2dc;--g:rgba(255,150,200,.5);") +
+        `--d:${1.4 + rand() * 2}s;--delay:${-rand() * 3}s`;
+      wrap.append(light);
+    }
+    const glow = el("span", { className: "tree-star-glow" });
+    glow.style.cssText = toPct(cx, sy);
+    wrap.append(glow);
+  }
+
+  const trees = [...document.querySelectorAll(".tree-wrap")];
+  const paintTrees = () => trees.forEach((t, i) => drawTree(t, 1225 + i * 77));
+  let treeTimer;
+  addEventListener("resize", () => {
+    clearTimeout(treeTimer);
+    treeTimer = setTimeout(paintTrees, 200);
+  });
+  paintTrees();
 
   // ---------- Snow ----------
   (function snow() {
@@ -159,7 +423,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#fff";
       ctx.strokeStyle = "#fff";
-      ctx.shadowColor = "rgba(224, 51, 127, 0.45)";
+      ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
       ctx.shadowBlur = 4 * dpr;
       ctx.lineWidth = 1.2 * dpr;
       ctx.lineCap = "round";
@@ -326,7 +590,7 @@
           ),
         ),
       );
-      body.querySelector("button").focus();
+      body.querySelector("button").focus({ preventScroll: true });
       return;
     }
 
@@ -374,7 +638,7 @@
         ),
       ),
     );
-    options[0].focus();
+    options[0].focus({ preventScroll: true });
   }
 
   function go(next) {
@@ -412,27 +676,27 @@
     setTimeout(() => {
       quiz.hidden = true;
       quiz.classList.remove("leaving");
-    }, 500);
-    document.body.classList.remove("quiz-open");
-    showList();
+      showList();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 450);
   }
 
   function startQuiz() {
     answers = {};
     attempts = 0;
     step = -1;
-    quizActive = true;
     writeStore("wz-quiz", null);
     $("main").hidden = true;
     $("footer").hidden = true;
     quiz.hidden = false;
-    document.body.classList.add("quiz-open");
     window.scrollTo({ top: 0 });
     renderStep();
+    // activate after the current click has finished bubbling
+    setTimeout(() => (quizActive = true));
   }
 
-  // No escaping the quiz 💅
-  quiz.addEventListener("click", (e) => {
+  // No escaping the quiz 💅 – clicking anywhere outside the card gets a sassy reply
+  document.addEventListener("click", (e) => {
     if (quizActive && !card.contains(e.target)) sass("backdrop");
   });
   $("fake-close").addEventListener("click", () => sass("close"));
@@ -461,7 +725,7 @@
   function wishCard(w) {
     const links = (w.links || []).map(safeUrl).filter(Boolean);
 
-    return el("li", { className: "wish" },
+    return el("li", { className: "wish card" },
       el("div", { className: "wish-top", style: `--tint:${w.farbe || "var(--blush)"}` },
         el("span", { className: "wish-emoji", textContent: w.emoji || "🎁", "aria-hidden": "true" }),
         w.preis && el("span", { className: "price", textContent: priceLabel(w.preis) }),
@@ -498,7 +762,7 @@
     $("wishes-match").replaceChildren(
       ...(matched.length
         ? matched.map(wishCard)
-        : [el("li", { className: "empty-note", textContent: "Hmm, in diesem Bereich und Budget ist gerade nichts dabei. 🥲 Aber weiter unten gibt's noch mehr – oder tut euch zu zweit zusammen! 👯" })]),
+        : [el("li", { className: "card empty-note", textContent: "Hmm, in diesem Bereich und Budget ist gerade nichts dabei. 🥲 Aber weiter unten gibt's noch mehr – oder tut euch zu zweit zusammen! 👯" })]),
     );
 
     $("rest-section").hidden = rest.length === 0;
@@ -537,7 +801,6 @@
   if (saved && saved.relation && saved.budget && saved.area) {
     answers = saved;
     quiz.hidden = true;
-    document.body.classList.remove("quiz-open");
     showList();
   } else {
     startQuiz();
