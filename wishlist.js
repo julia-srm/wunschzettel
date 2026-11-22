@@ -61,7 +61,7 @@ const WISHLIST = {
       id: "oysho-hose",
       name: "Weite Hose von Oysho",
       beschreibung: "Bequeme weite Hose aus Modal – in einer schönen Farbe. 🌸",
-      preis: [40, 50],
+      preis: [45, 50],
       bereich: "sport",
       emoji: "🏃🏻",
       farbe: "#e3f0ff",
