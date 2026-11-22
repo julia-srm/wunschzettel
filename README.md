@@ -1,43 +1,30 @@
-# 🎄 Wunschzettel – Christmas Wishlist
+# 🎀 Wunschzettel
 
-A small, festive wishlist website with falling snow, a Christmas countdown and category filters.
-Plain HTML/CSS/JS, so there's nothing to install or build.
+Ein rosa Weihnachts-Wunschzettel mit Schneeflocken, geschmücktem Baum und einem kleinen,
+frechen Quiz, das man nicht überspringen kann. 💅
 
-## ✏️ Edit your wishes
+- **Quiz zuerst:** Besucher:innen beantworten 3 Fragen (Beziehung, Budget, Bereich).
+  Danach sehen sie die passenden Wünsche oben und den Rest darunter.
+- Reines HTML/CSS/JS, nichts zu installieren.
 
-Open **`wishlist.js`** and change the title, the message and the list of wishes.
-Each wish looks like this:
+## ✏️ Wünsche bearbeiten
 
-```js
-{
-  name: "Cozy wool scarf",          // required
-  description: "Dark green please", // optional
-  price: "€30",                     // optional
-  link: "https://…",                // optional – shows a "View" button
-  image: "images/scarf.jpg",        // optional – URL or file in this repo
-  priority: "high",                 // "high" | "medium" | "low"
-  category: "Clothes",              // optional – used for the filter buttons
-},
-```
+Alles steht in **`wishlist.js`**: Titel, Begrüßung, Bereiche fürs Quiz und die Wünsche.
+Die Preise (`preis: [von, bis]`) sind Schätzungen und werden fürs Budget im Quiz benutzt.
 
-Wishes are sorted by priority automatically.
+## 👀 Lokal ansehen
 
-## 👀 Preview locally
+Doppelklick auf `index.html`. (Um das Quiz nochmal zu sehen: Button „Quiz nochmal ↺“.)
 
-Just double-click `index.html` to open it in your browser.
+## 🚀 Mit GitHub Pages veröffentlichen
 
-## 🚀 Publish with GitHub Pages
-
-1. Commit and push the files to GitHub:
+1. Dateien pushen:
    ```sh
    git add .
-   git commit -m "Add Christmas wishlist"
+   git commit -m "Wunschzettel"
    git push
    ```
-2. On GitHub, open the repository → **Settings** → **Pages**.
-3. Under **Build and deployment**, set **Source** to *Deploy from a branch*,
-   pick the branch **main** and the folder **/ (root)**, then click **Save**.
-4. After a minute your wishlist is live at
-   `https://<your-username>.github.io/wunschzettel/` 🎁
-
-Every time you push a change to `wishlist.js`, the site updates automatically.
+2. Auf GitHub: Repository → **Settings** → **Pages**.
+3. Bei **Source** *Deploy from a branch* wählen, Branch **main**, Ordner **/ (root)**, **Save**.
+4. Nach ca. einer Minute ist der Wunschzettel online unter
+   `https://<dein-username>.github.io/wunschzettel/` 🎁
