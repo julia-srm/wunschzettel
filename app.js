@@ -516,7 +516,7 @@
     backdrop: [
       "Erste Frage geschafft! Weiter geht's. 💅",
       "Weiter gehts! Ich bin gespannt. 👀",
-      "Fast geschafft! Nur noch zwei Fragen. 🥹",
+      // "Fast geschafft! Nur noch zwei Fragen. 🥹",
       "Finale oho! Nur noch eine Frage. 😌",
       "Yippie! Du hast es fast geschafft. 🎀",
     ],
