@@ -469,10 +469,9 @@
   };
 
   const RELATIONS = {
-    familie: { label: "Familie", greeting: "Hallo liebe Familie! 🥹" },
+    familie: { label: "Familie", greeting: "Hallo liebste Familie! 🥹" },
     freundin: { label: "Freund:in", greeting: "Hey Bestie! 💅" },
     partner: { label: "Partner:in", greeting: "Hallo Schatz! 😘" },
-    kolleg: { label: "Kolleg:in", greeting: "Hallo liebe:r Kolleg:in! 📎" },
     santa: { label: "Weihnachtsmann", greeting: "Lieber Weihnachtsmann! 🎅" },
   };
 
@@ -486,7 +485,6 @@
         { value: "familie", emoji: "👨‍👩‍👧", label: "Familie", reaction: "Ahh, die Lieblingsverwandtschaft! 🥹" },
         { value: "freundin", emoji: "👯", label: "Freund:in", reaction: "Bestie-Alarm! Du kennst meinen Geschmack eh. 💅" },
         { value: "partner", emoji: "💘", label: "Partner:in", reaction: "Oh là là. Kein Druck. (Doch, ein bisschen.) 😘" },
-        { value: "kolleg", emoji: "💼", label: "Kolleg:in", reaction: "Wie aufmerksam! Das gibt Bonuspunkte im Büro. 📎" },
         { value: "santa", emoji: "🎅", label: "Der Weihnachtsmann persönlich", reaction: "Endlich! Ich war dieses Jahr SEHR brav. Fast. 😇" },
       ],
     },
@@ -518,7 +516,7 @@
     backdrop: [
       "Daneben ist auch vorbei. 🙃",
       "Da draußen gibt's nichts zu sehen. Hier drin schon. 👀",
-      "Netter Versuch, Schätzchen. 💅",
+      "Netter Versuch, klick besser weiter. 💅",
       "Der Weihnachtsmann sieht alles. Auch DAS. 🎅",
       "Keine Abkürzungen! Selbst Rentiere fliegen die ganze Strecke. 🦌",
     ],
@@ -540,7 +538,6 @@
       "Okay, langsam wird's peinlich. Einfach antworten! 😤",
       `Soll ich ${OWNER} anrufen? Ich ruf ${OWNER} an. 📞`,
       "Glückwunsch, du stehst jetzt auf der Unartig-Liste. 📝😈",
-      "Ich hab den ganzen Abend Zeit. Und Coke Zero. 🥤",
     ],
   };
 
@@ -580,10 +577,10 @@
       body.replaceChildren(
         el("div", { className: "quiz-step" },
           el("span", { className: "big-emoji", textContent: "✋" }),
-          el("h2", { id: "quiz-title", textContent: "Halt! Geschenk-Kontrolle!" }),
+          el("h2", { id: "quiz-title", textContent: "Stop! Geschenk-Kontrolle!" }),
           el("p", {
             className: "quiz-sub",
-            textContent: `Bevor du ${OWNER}s Wunschzettel sehen darfst, musst du drei kurze Fragen beantworten. Keine Ausreden, keine Abkürzungen. 💅`,
+            textContent: `Bevor du ${OWNER}'s Wunschzettel sehen darfst, musst du drei kurze Fragen beantworten. Keine Ausreden, keine Abkürzungen. 💅`,
           }),
           el("div", { className: "quiz-nav" },
             el("button", { className: "btn btn-primary", type: "button", textContent: "Na gut, los geht's 🎀", onclick: () => go(0) }),
