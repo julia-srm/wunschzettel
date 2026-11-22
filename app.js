@@ -514,11 +514,11 @@
 
   const SASS = {
     backdrop: [
-      "Daneben ist auch vorbei. 🙃",
-      "Da draußen gibt's nichts zu sehen. Hier drin schon. 👀",
-      "Netter Versuch, klick besser weiter. 💅",
-      "Der Weihnachtsmann sieht alles. Auch DAS. 🎅",
-      "Keine Abkürzungen! Selbst Rentiere fliegen die ganze Strecke. 🦌",
+      "Erste Frage geschafft! Weiter geht's. 💅",
+      "Weiter gehts! Ich bin gespannt. 👀",
+      "Fast geschafft! Nur noch zwei Fragen. 🥹",
+      "Finale oho! Nur noch eine Frage. 😌",
+      "Yippie! Du hast es fast geschafft. 🎀",
     ],
     escape: [
       "Escape? Hier gibt's kein Entkommen. Nur Weihnachten. 🎄",
@@ -577,7 +577,7 @@
       body.replaceChildren(
         el("div", { className: "quiz-step" },
           el("span", { className: "big-emoji", textContent: "✋" }),
-          el("h2", { id: "quiz-title", textContent: "Stop! Geschenk-Kontrolle!" }),
+          el("h2", { id: "quiz-title", textContent: "Stop! Geschenk-Quiz!" }),
           el("p", {
             className: "quiz-sub",
             textContent: `Bevor du ${OWNER}'s Wunschzettel sehen darfst, musst du drei kurze Fragen beantworten. Keine Ausreden, keine Abkürzungen. 💅`,
