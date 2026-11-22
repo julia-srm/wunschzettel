@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Christmas Wishlist</title>
+  <meta name="description" content="My Christmas wishlist" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎄</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="snow" aria-hidden="true"></canvas>
+
+  <header class="hero">
+    <p class="eyebrow">🎅 Wunschzettel 🎅</p>
+    <h1 id="title">Christmas Wishlist</h1>
+    <p id="message" class="message"></p>
+    <div class="countdown" id="countdown" aria-live="polite"></div>
+  </header>
+
+  <main>
+    <nav class="filters" id="filters" aria-label="Filter wishes"></nav>
+    <ul class="wishes" id="wishes"></ul>
+    <p class="empty" id="empty" hidden>No wishes here yet.</p>
+  </main>
+
+  <footer>
+    Made with ❤️ and a little bit of Christmas magic
+  </footer>
+
+  <script src="wishlist.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
